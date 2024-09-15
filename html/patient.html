@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ar">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>السجل الطبي للمريض</title>
+    <link rel="stylesheet" href="/css/s.css">
+</head>
+
+<body>
+    <header>
+        <h1>السجل الطبي للمريض</h1>
+        <nav>
+            <ul>
+                <li id="back"></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section id="patientDetails">
+            <!-- تفاصيل المريض ستضاف هنا -->
+        </section>
+        <section id="medicalRecords">
+            <h2>السجلات الطبية</h2>
+            <table id="recordsTable">
+                <thead>
+                    <tr>
+                        <th>التاريخ</th>
+                        <th>الملاحظات</th>
+                        <th class="text-left"></th>
+
+                    </tr>
+                </thead>
+                <tbody class="medicalRecords">
+                    <!-- السجلات الطبية ستضاف هنا -->
+                </tbody>
+            </table>
+            <button id="addRecordBtn">إضافة سجل طبي جديد</button>
+        </section>
+    </main>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const patientId = urlParams.get('id');
+            const doctorId = urlParams.get('idDoc');
+            const btnRecord = document.getElementById("addRecordBtn");
+            if (btnRecord) {
+                btnRecord.addEventListener("click", () => {
+                    // معالجة إضافة مريض جديد هنا
+
+                    location.href = `addRecord.html?id=${patientId}`
+
+
+                });
+            }
+
+            const back = document.getElementById("back");
+
+
+            let divPatients = document.querySelector(".medicalRecords");
+
+            back.innerHTML = `
+            <a href="dashboard.html">العودة الى المرضى</a>
+            `
+            async function getpatients() {
+                const token = sessionStorage.getItem('token');
+                let data = (await fetch(`http://localhost:8080/api/medicalRecords/${patientId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                })).json();
+                addPatientToPage(await data);
+            }
+            getpatients();
+            function addPatientToPage(patients) {
+                patients.forEach(e => {
+
+                    let date = e.recordDate.split("T")[0]
+
+                    let tr = document.createElement("tr");
+                    tr.id = `${e.recordID}`;
+                    tr.innerHTML = `
+                    <tr>
+                        <td>${date}</td>
+                        <td>${e.notes}</td>
+                        <td> <span class="delete" id="${e.recordID}" >
+                          حذف
+                        </span>
+                         <span class="update" id="${e.recordID}" >
+                         تعديل
+                        </span> </td>
+                    </tr>
+                    `
+                    divPatients.appendChild(tr);
+                });
+            }
+            // حذف المريض من قاعدة البيانات
+
+            document.addEventListener("click", (e) => {
+                //e.preventDefault();
+                if (e.target.className === "delete") {
+                    if (confirm("هل انت متأكد من حذف السجل")) {
+                        deletePatients();
+                        async function deletePatients() {
+                            const token = sessionStorage.getItem('token');
+                            try {
+                                let data = (await fetch(`http://localhost:8080/api/medicalRecords/${e.target.id}`, {
+                                    method: "Delete",
+                                    headers: { 'Authorization': `Bearer ${token}` }
+                                }));
+                                document.getElementById(`${e.target.id}`).remove()
+
+                            } catch (e) {
+                                console.error(e)
+                            }
+                        }
+
+                    }
+                }
+
+                if (e.target.className === "update") {
+
+                    location.href = `updateMedicalRecords.html?id=${e.target.id}`
+
+                }
+
+
+            });
+        });
+    </script>
+</body>
+
+</html>

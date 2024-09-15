@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ar">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+    <header>
+        <h1>تسجيل الدخول</h1>
+    </header>
+    <main>
+        <form id="loginForm">
+            <label for="email">اسم المستخدم:</label>
+            <input type="text" id="email" name="email" required>
+            <label for="password">كلمة المرور:</label>
+            <input type="password" id="password" name="password" required>
+            <button type="submit">تسجيل الدخول</button>
+        </form>
+    </main>
+    <!-- <script src="scripts.js"></script>-->
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function (event) {
+            event.preventDefault(); // منع إرسال النموذج بشكل افتراضي
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // عملية الاستدعاء لـ Spring Security
+            fetch('http://localhost:8080/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: email, password: password })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to login');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // حفظ التوكن في Session Storage
+                    sessionStorage.setItem('token', data.token);
+
+                    // يمكنك هنا توجيه المستخدم إلى صفحة أخرى أو إظهار رسالة نجاح الدخول
+                    alert('Login successful');
+
+                    // مثال: توجيه المستخدم إلى صفحة الرئيسية بعد تسجيل الدخول
+                    window.location.href = '/html/dashboard.html';
+                })
+                .catch(error => {
+                    console.error('Login error:', error);
+                    alert('Login failed. Please check your credentials and try again.');
+                });
+        });
+    </script>
+</body>
+
+</html>

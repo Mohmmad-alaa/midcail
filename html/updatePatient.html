@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="/css/formStyle.css">
+</head>
+
+<body>
+    <header>
+        <h1>تعديل المريض</h1>
+        <nav>
+            <ul>
+                <li id="back"></li>
+                <button id="openModalBtn">تعديل </button>
+                <!-- Add more navigation items as needed -->
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div id="patientModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>تعديل المريض</h2>
+                <form id="updatePatientForm">
+                    <input type="hidden" id="Id" name="Id" required><br>
+                    <label for="fullName">Full Name:</label>
+                    <input type="text" id="updatefullName" name="fullName" required><br>
+                    <label for="phone">Phone:</label>
+                    <input type="text" id="phone" name="phone" required><br>
+                    <label for="gender">Gender:</label>
+                    <select id="gender" name="gender">
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                    <label for="dateOfBirth">Date of Birth:</label>
+                    <input type="date" id="dateOfBirth" name="dateOfBirth" required><br>
+                    <button type="submit" id="updatePatientBtn">Update Patient</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function decodeJWT(token) {
+            var parts = token.split('.');
+            return {
+                header: JSON.parse(atob(parts[0])),
+                payload: JSON.parse(atob(parts[1])),
+                secret: parts[2]
+            };
+        }
+        const back = document.getElementById("back")
+        back.innerHTML = `
+<a href="dashboard.html">عودة</a>
+`;
+        const token = sessionStorage.getItem('token');
+        if (token) {
+            const id = decodeJWT(token).payload.sub;
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const patientId = urlParams.get('id');
+
+        document.getElementById("Id").value = patientId;
+        const fullName = document.getElementById("updatefullName");
+        const phone = document.getElementById("phone");
+        const gender = document.getElementById("gender");
+        const dateOfBirth = document.getElementById("dateOfBirth");
+        const form = document.getElementById("updatePatientForm");
+
+        if (form) {
+            form.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const info = {
+                    fullName: fullName.value,
+                    phone: phone.value,
+                    dateOfBirth: dateOfBirth.value,
+                    gender: gender.value
+                };
+                console.log(JSON.stringify(info))
+
+                try {
+                    const response = await fetch(`http://localhost:8080/api/patients/${patientId}`, {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json",
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(info)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+
+                    alert("Patient information saved successfully");
+                    location.href = `dashboard.html`;
+                } catch (error) {
+                    console.error(error);
+                    alert("An error occurred while saving the patient information.");
+                }
+            });
+        }
+
+        async function getPatient() {
+            try {
+                const response = await fetch(`http://localhost:8080/api/patients/${patientId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error(error);
+                alert("An error occurred while fetching the patient information.");
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toISOString().substring(0, 10);
+        }
+
+        getPatient().then(patient => {
+            if (patient) {
+                fullName.value = patient.fullName;
+                phone.value = patient.phone;
+                gender.value = patient.gender;
+                dateOfBirth.value = formatDate(patient.dateOfBirth);
+            }
+        });
+        document.addEventListener('DOMContentLoaded', function () {
+            var modal = document.getElementById('patientModal');
+            var btn = document.getElementById('openModalBtn');
+            var span = document.getElementsByClassName('close')[0];
+
+            btn.onclick = function () {
+                modal.style.display = 'block';
+            }
+
+            span.onclick = function () {
+                modal.style.display = 'none';
+            }
+
+            window.onclick = function (event) {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

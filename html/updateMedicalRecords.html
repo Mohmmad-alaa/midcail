@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ar">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حفظ بيانات المريض</title>
+    <link rel="stylesheet" href="/css/styleRecordData.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>تعديل بيانات المريض</h1>
+        <form id="recordForm">
+
+            <input type="hidden" id="doctorId" name="doctorId" required><br>
+            <input type="hidden" id="recordID" name="recordID" required><br>
+            <input type="hidden" id="patientID" name="patientID" required><br>
+
+            <label for="recordDate">تاريخ التسجيل:</label>
+            <input type="date" id="recordDate" name="recordDate" required>
+
+            <label for="notes">ملاحظات:</label>
+            <input type="text" id="notes" name="notes" required>
+
+            <button type="submit">حفظ</button>
+        </form>
+
+    </div>
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", async (e) => {
+            const token = sessionStorage.getItem('token');
+            const urlParams = new URLSearchParams(window.location.search);
+            const recordID = urlParams.get('id');
+            const recordI = document.getElementById("recordID").value = recordID;
+            const patientId = document.getElementById("patientID");
+            const doctorID = document.getElementById("doctorId")
+            const dateOfBirth = document.getElementById("recordDate");
+            const note = document.getElementById("notes");
+
+            const form = document.getElementById("recordForm");
+            if (form) {
+                form.addEventListener("submit", async (e) => {
+                    e.preventDefault();
+
+                    const info = {
+                        patient: {
+                            patientID: patientId.value,
+                        },
+                        doctor: {
+                            doctorID: doctorID.value,
+                        },
+                        recordDate: dateOfBirth.value,
+                        notes: note.value,
+                    };
+                    console.log(JSON.stringify(info))
+                    try {
+                        const response = await fetch(`http://localhost:8080/api/medicalRecords/${recordID}`, {
+                            method: "PUT",
+                            headers: {
+                                "Content-Type": "application/json",
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify(info)
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok ' + response.statusText);
+                        }
+
+                        alert("Patient information saved successfully");
+                        location.href = `patient.html?id=${patientId.value}`;
+                    } catch (error) {
+                        console.error(error);
+                        alert("An error occurred while saving the patient information.");
+                    }
+                })
+            }
+
+
+
+            async function getPatient() {
+                try {
+                    const response = await fetch(`http://localhost:8080/api/medicalRecords/id/${recordI}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    // console.log(await response.json())
+                    return await response.json();
+                } catch (error) {
+                    console.error(error);
+                    alert("An error occurred while fetching the patient information.");
+                }
+            }
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toISOString().substring(0, 10);
+            }
+            getPatient().then(patient => {
+                if (patient) {
+                    patientId.value = patient.patient.patientID;
+                    doctorID.value = patient.doctor.doctorID;
+                    dateOfBirth.value = formatDate(patient.recordDate);
+                    note.value = patient.notes;
+                }
+            });
+
+            let id;
+            if (token) {
+                id = decodeJWT(token).payload.sub;
+            }
+            function decodeJWT(token) {
+                var parts = token.split('.');
+                return {
+                    header: JSON.parse(atob(parts[0])),
+                    payload: JSON.parse(atob(parts[1])),
+                    secret: parts[2]
+                };
+            }
+        })
+    </script>
+</body>
+
+</html>

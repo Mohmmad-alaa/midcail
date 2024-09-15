@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ar">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم الطبيب</title>
+    <link rel="stylesheet" href="/css/s.css">
+
+</head>
+
+<body>
+    <header>
+        <h1>لوحة تحكم الطبيب</h1>
+        <nav>
+            <ul>
+                <li><a href="login.html">تسجيل الخروج</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section>
+            <h2>قائمة المرضى</h2>
+            <div class="container">
+                <table id="patientsTable">
+                    <thead>
+                        <tr class="t">
+                            <th>رقم الهاتف</th>
+                            <th>الاسم</th>
+                            <th>التفاصيل</th>
+                            <th></th>
+
+                        </tr>
+                    </thead>
+                    <tbody class="patients">
+                        <!-- بيانات المرضى ستضاف هنا -->
+                    </tbody>
+                </table>
+
+                <button id="addPatientBtn">إضافة مريض جديد</button>
+            </div>
+        </section>
+    </main>
+    <script type="module" src="/js/scripts.js"></script>
+</body>
+
+</html>

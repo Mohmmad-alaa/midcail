@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="/css/formStyle.css">
+</head>
+
+<body>
+    <header>
+        <h1>Patient Dashboard</h1>
+        <nav>
+            <ul>
+                <li id="back"></li>
+                <li><button id="openModalBtn">إضافة مريض جديد</button></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div id="patientModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>اضافة مريض</h2>
+
+                <form id="patient_form">
+                    <label for="fullName">Full Name:</label>
+                    <input type="text" id="fullName" name="fullName" required><br>
+
+                    <label for="phone">Phone:</label>
+                    <input type="text" id="phone" name="phone" required><br>
+
+                    <label for="gender">Gender:</label>
+                    <!--  <input type="text" id="gender" name="gender" required><br> -->
+                    <select id="gender">
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+
+                    <label for="dateOfBirth">Date of Birth:</label>
+                    <input type="date" id="dateOfBirth" name="dateOfBirth" required><br>
+
+                    <button type="submit" id="addPatientBtn">اضافة مريض</button>
+                </form>
+            </div>
+        </div>
+    </main>
+</body>
+<script src="/js/addPatient.js"></script>
+</body>
+
+</html>

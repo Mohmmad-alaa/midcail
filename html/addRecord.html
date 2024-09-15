@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ar">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حفظ بيانات المريض</title>
+    <link rel="stylesheet" href="/css/styleRecordData.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>حفظ بيانات المريض</h1>
+        <form id="patientForm">
+            <label for="recordDate">تاريخ التسجيل:</label>
+            <input type="date" id="recordDate" name="recordDate" required>
+
+            <label for="notes">ملاحظات:</label>
+            <input type="text" id="notes" name="notes" required>
+
+            <button type="submit">حفظ</button>
+        </form>
+
+    </div>
+    <script src="/js/addRecord.js"></script>
+</body>
+
+</html>
